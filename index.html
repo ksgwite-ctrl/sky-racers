@@ -276,6 +276,13 @@ function draw(){
 }
 
 function loop(now){
+   if(raceStartAt && Date.now()<raceStartAt){
+    speed=0;
+    updateRaceDisplay();
+    draw();
+    requestAnimationFrame(loop);
+    return;
+  }
  if(keys["arrowup"]||keys["w"])speed+=.12;
  else speed-=.035;
  if(keys["arrowdown"]||keys["s"])speed-=.18;
