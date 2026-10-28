@@ -108,7 +108,11 @@ function setupConnection(c){
  });
  conn.on("data",data=>{
   if(data && data.type==="car")remote=data;
- });
+ if(data && data.type==="raceStart"){
+    raceStartAt=data.startAt;
+    raceStarted=false;
+    raceFinished=false;
+  }});
  conn.on("close",()=>{
   conn=null;remote=null;
   setStatus("Friend disconnected. You can keep driving solo.");
