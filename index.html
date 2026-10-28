@@ -4,20 +4,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sky Racers</title>
+<title>Sky Racers Multiplayer</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#10251e;color:white;font-family:Arial,sans-serif;text-align:center}
 h1{margin:12px 0;color:#ffe66d}
-p{margin:6px}
+p{margin:7px}
+button,input{padding:11px;margin:4px;border:0;border-radius:8px;font-size:15px}
+button{background:#ffe66d;font-weight:bold;cursor:pointer}
+input{width:min(280px,90%);background:white}
 canvas{display:block;width:min(100%,900px);height:auto;margin:12px auto;border:3px solid white;border-radius:10px}
-button{padding:12px 20px;margin:5px;border:0;border-radius:9px;background:#ffe66d;font-size:17px;font-weight:bold;cursor:pointer}
+#status{color:#bcebdc;font-size:14px;overflow-wrap:anywhere;padding:6px}
 </style>
 </head>
 <body>
-<h1>🏁 SKY RACERS 🏎️</h1>
-<p>Arrow keys or WASD to drive • Avoid the edges!</p>
+<h1>🏁 SKY RACERS MULTIPLAYER 🏎️</h1>
+<p>Drive: W A S D or arrow keys</p>
 <p id="info">Speed: 0 km/h | Distance: 0 m</p>
+
+<div>
+<button id="host">Create Room</button>
+<button id="copy">Copy Room ID</button><br>
+<input id="room" placeholder="Enter your friend's Room ID">
+<button id="join">Join Room</button>
+<p id="status">Solo mode — create a room to invite a friend.</p>
+</div>
+
 <canvas id="game" width="900" height="600"></canvas>
 <div>
 <button id="left">⬅ LEFT</button>
@@ -26,15 +38,20 @@ button{padding:12px 20px;margin:5px;border:0;border-radius:9px;background:#ffe66
 <button id="right">RIGHT ➡</button>
 <button id="reset">↻ RESTART</button>
 </div>
-<p>Sky Racers — First playable version</p>
+<p>Sky Racers — Multiplayer test version</p>
 
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 const W=900,H=600;
-let carX=0,speed=0,distance=0,roadOffset=0;
 const keys={};
-let crashed=false;
+let carX=0,speed=0,distance=0,roadOffset=0;
+let peer=null,conn=null,remote=null;
+let lastSend=0;
+const status=document.getElementById("status");
+
+function setStatus(s){status.textContent=s;}
 
 document.addEventListener("keydown",e=>{
  keys[e.key.toLowerCase()]=true;
@@ -43,10 +60,13 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 
 function hold(id,key){
- const b=document.getElementById(id);
- b.addEventListener("pointerdown",e=>{e.preventDefault();keys[key]=true});
- ["pointerup","pointercancel","pointerleave"].forEach(ev=>
-  b.addEventListener(ev,()=>keys[key]=false));
+ const el=document.getElementById(id);
+ el.addEventListener("pointerdown",e=>{
+  e.preventDefault();keys[key]=true;
+  if(el.setPointerCapture)el.setPointerCapture(e.pointerId);
+ });
+ ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>
+  el.addEventListener(ev,()=>keys[key]=false));
 }
 hold("left","arrowleft");
 hold("right","arrowright");
@@ -54,41 +74,114 @@ hold("gas","arrowup");
 hold("brake","arrowdown");
 
 document.getElementById("reset").onclick=()=>{
- carX=0;speed=0;distance=0;roadOffset=0;crashed=false;
+ carX=0;speed=0;distance=0;roadOffset=0;
+};
+
+function setupConnection(c){
+ conn=c;
+ conn.on("open",()=>{
+  setStatus("Connected! You and your friend can race.");
+ });
+ conn.on("data",data=>{
+  if(data && data.type==="car")remote=data;
+ });
+ conn.on("close",()=>{
+  conn=null;remote=null;
+  setStatus("Friend disconnected. You can keep driving solo.");
+ });
+ conn.on("error",()=>{
+  setStatus("Connection problem. Try joining the room again.");
+ });
+}
+
+document.getElementById("host").onclick=()=>{
+ if(typeof Peer==="undefined"){
+  setStatus("Multiplayer library did not load. Check your internet and reload.");
+  return;
+ }
+ if(peer)peer.destroy();
+ conn=null;remote=null;
+ setStatus("Creating room...");
+ peer=new Peer();
+ peer.on("open",id=>{
+  document.getElementById("room").value=id;
+  setStatus("Room created! Share this Room ID with your friend.");
+ });
+ peer.on("connection",c=>{
+  if(conn){c.close();return;}
+  setupConnection(c);
+ });
+ peer.on("error",e=>{
+  setStatus("Could not create room ("+e.type+"). Try again.");
+ });
+};
+
+document.getElementById("join").onclick=()=>{
+ const id=document.getElementById("room").value.trim();
+ if(!id){setStatus("Enter your friend's Room ID first.");return;}
+ if(typeof Peer==="undefined"){
+  setStatus("Multiplayer library did not load. Check your internet and reload.");
+  return;
+ }
+ if(peer)peer.destroy();
+ conn=null;remote=null;
+ setStatus("Connecting to your friend...");
+ peer=new Peer();
+ peer.on("open",()=>{
+  const c=peer.connect(id);
+  setupConnection(c);
+ });
+ peer.on("error",e=>{
+  setStatus("Could not connect ("+e.type+"). Check the Room ID and try again.");
+ });
+};
+
+document.getElementById("copy").onclick=async()=>{
+ const id=document.getElementById("room").value.trim();
+ if(!id){setStatus("Create a room first to get your Room ID.");return;}
+ try{
+  await navigator.clipboard.writeText(id);
+  setStatus("Room ID copied! Send it to your friend.");
+ }catch(e){
+  document.getElementById("room").select();
+  setStatus("Room ID selected. Press Ctrl+C to copy it.");
+ }
 };
 
 function polygon(points,color){
- ctx.fillStyle=color;
- ctx.beginPath();
+ ctx.fillStyle=color;ctx.beginPath();
  points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
  ctx.closePath();ctx.fill();
 }
 
-function drawCar(x,y){
+function drawCar(x,y,color,label){
  ctx.save();ctx.translate(x,y);
- ctx.fillStyle="#111";ctx.fillRect(-29,-8,12,28);ctx.fillRect(17,-8,12,28);
- ctx.fillStyle="#f02d4f";ctx.fillRect(-23,-28,46,58);
- ctx.fillStyle="#ff6174";ctx.fillRect(-18,-23,36,12);
+ ctx.fillStyle="#111";
+ ctx.fillRect(-29,-8,12,28);ctx.fillRect(17,-8,12,28);
+ ctx.fillStyle=color;ctx.fillRect(-23,-28,46,58);
+ ctx.fillStyle="#ffffff66";ctx.fillRect(-18,-23,36,12);
  ctx.fillStyle="#a9edff";ctx.fillRect(-16,-8,32,16);
  ctx.fillStyle="#ffe66d";ctx.fillRect(-20,22,10,5);ctx.fillRect(10,22,10,5);
+ ctx.fillStyle="white";ctx.font="bold 13px Arial";ctx.textAlign="center";
+ ctx.fillText(label,0,-35);
  ctx.restore();
 }
 
 function draw(){
  ctx.clearRect(0,0,W,H);
  const sky=ctx.createLinearGradient(0,0,0,H);
- sky.addColorStop(0,"#62c7f5");sky.addColorStop(.55,"#c5f0ff");sky.addColorStop(.56,"#378d42");sky.addColorStop(1,"#174b2d");
+ sky.addColorStop(0,"#62c7f5");
+ sky.addColorStop(.55,"#c5f0ff");
+ sky.addColorStop(.56,"#378d42");
+ sky.addColorStop(1,"#174b2d");
  ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
 
- // Distant hills
- polygon([[0,340],[100,240],[210,320],[350,220],[490,320],[640,235],[790,315],[900,250],[900,420],[0,420]],"#43874b");
+ polygon([[0,340],[100,240],[210,320],[350,220],
+ [490,320],[640,235],[790,315],[900,250],[900,420],[0,420]],"#43874b");
 
- // Perspective road
  const horizon=175;
- const curve=Math.sin(roadOffset/900)*95;
- polygon([[W/2-35+curve,horizon],[W/2+35+curve,horizon],[W+120,H],[ -120,H]],"#343a42");
+ polygon([[W/2-35,horizon],[W/2+35,horizon],[W+120,H],[-120,H]],"#343a42");
 
- // Road edges and dashed center line
  for(let i=0;i<18;i++){
   let t=((i/18+roadOffset/900)%1);
   let y=horizon+t*t*(H-horizon);
@@ -99,14 +192,11 @@ function draw(){
    ctx.fillStyle="#fff";
    ctx.fillRect(center-half-8,y,8,stripeH);
    ctx.fillRect(center+half,y,8,stripeH);
-  }
-  if(i%2===0){
    ctx.fillStyle="#fff0b0";
    ctx.fillRect(center-3,y,6,stripeH);
   }
  }
 
- // Roadside trees
  for(let i=0;i<20;i++){
   const t=((i/20+roadOffset/1400)%1);
   const y=horizon+t*t*(H-horizon);
@@ -115,22 +205,32 @@ function draw(){
   const size=8+t*30;
   for(const side of [-1,1]){
    const x=center+side*(half+20+t*45);
-   ctx.fillStyle="#70482c";ctx.fillRect(x-size*.12,y-size*.3,size*.24,size*.8);
+   ctx.fillStyle="#70482c";
+   ctx.fillRect(x-size*.12,y-size*.3,size*.24,size*.8);
    ctx.fillStyle=i%2?"#176b3a":"#258a48";
    ctx.beginPath();ctx.arc(x,y-size*.55,size*.45,0,Math.PI*2);ctx.fill();
   }
  }
 
- drawCar(W/2+carX*300,H-105);
+ // Draw the other player according to the distance between the cars.
+ if(remote){
+  const delta=remote.distance-distance;
+  const y=Math.max(205,Math.min(H-155,H-105-delta*1.5));
+  const t=Math.sqrt(Math.max(0.01,(y-horizon)/(H-horizon)));
+  const center=W/2+Math.sin(roadOffset/900+t*2)*95;
+  const half=35+t*485;
+  const x=center+remote.x*half*.65;
+  drawCar(x,y,"#38a8ff","FRIEND");
+ }
 
- ctx.fillStyle="rgba(0,0,0,.5)";
- ctx.fillRect(18,18,230,68);
+ drawCar(W/2+carX*300,H-105,"#f02d4f","YOU");
+ ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillRect(18,18,245,68);
  ctx.fillStyle="white";ctx.font="bold 23px Arial";
- ctx.fillText("SPEED  "+Math.round(speed*5)+" km/h",30,47);
- ctx.font="17px Arial";ctx.fillText("DISTANCE  "+Math.floor(distance)+" m",30,72);
+ ctx.fillText("SPEED "+Math.round(speed*5)+" km/h",30,47);
+ ctx.font="17px Arial";ctx.fillText("DISTANCE "+Math.floor(distance)+" m",30,72);
 }
 
-function loop(){
+function loop(now){
  if(keys["arrowup"]||keys["w"])speed+=.12;
  else speed-=.035;
  if(keys["arrowdown"]||keys["s"])speed-=.18;
@@ -138,19 +238,25 @@ function loop(){
 
  if(keys["arrowleft"]||keys["a"])carX-=.018*(.5+speed/15);
  if(keys["arrowright"]||keys["d"])carX+=.018*(.5+speed/15);
-
  carX=Math.max(-1.25,Math.min(1.25,carX));
  if(Math.abs(carX)>1.05)speed*=.97;
 
  distance+=speed/35*.12;
  roadOffset+=speed*1.8;
+
  document.getElementById("info").textContent=
-  "Speed: "+Math.round(speed*5)+" km/h | Distance: "+Math.floor(distance)+" m";
+ "Speed: "+Math.round(speed*5)+" km/h | Distance: "+Math.floor(distance)+" m";
+
+ if(conn && conn.open && now-lastSend>70){
+  lastSend=now;
+  try{
+   conn.send({type:"car",x:carX,distance:distance,speed:speed});
+  }catch(e){}
+ }
  draw();
  requestAnimationFrame(loop);
 }
-loop();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
-
