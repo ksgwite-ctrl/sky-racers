@@ -298,6 +298,24 @@ function loop(now){
  if(Math.abs(carX)>1.05)speed*=.97;
 
  distance+=speed/35*.12;
+ if (raceStarted && !raceFinished) {
+  raceProgress = distance;
+  currentLap = Math.min(
+    totalLaps,
+    Math.floor(raceProgress / lapDistance) + 1
+  );
+
+  document.getElementById("lapInfo").textContent =
+    "Lap: " + currentLap + " / " + totalLaps;
+
+  if (raceProgress >= totalLaps * lapDistance) {
+    raceFinished = true;
+    speed = 0;
+    document.getElementById("lapInfo").textContent =
+      "Lap: " + totalLaps + " / " + totalLaps;
+    updateRaceDisplay();
+  }
+}
  roadOffset+=speed*1.8;
 
  document.getElementById("info").textContent=
