@@ -50,9 +50,32 @@ const keys={};
 let carX=0,speed=0,distance=0,roadOffset=0;
 let peer=null,conn=null,remote=null;
 let lastSend=0;
+ let raceStartAt = 0;
+let raceStarted = false;
+let raceFinished = false;
 const status=document.getElementById("status");
 
 function setStatus(s){status.textContent=s;}
+ function updateRaceDisplay() {
+  const info = document.getElementById("raceInfo");
+  if (!info) return;
+
+  if (raceFinished) {
+    info.textContent = "🏁 Race finished!";
+  } else if (!raceStartAt) {
+    info.textContent = "Waiting for race to start";
+  } else {
+    const remaining = raceStartAt - Date.now();
+
+    if (remaining > 0) {
+      info.textContent =
+        "🏁 Race starts in " + Math.ceil(remaining / 1000);
+    } else {
+      raceStarted = true;
+      info.textContent = "🚦 GO! Race started!";
+    }
+  }
+}
 
 document.addEventListener("keydown",e=>{
  keys[e.key.toLowerCase()]=true;
