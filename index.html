@@ -1,1 +1,156 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sky Racers</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10251e;color:white;font-family:Arial,sans-serif;text-align:center}
+h1{margin:12px 0;color:#ffe66d}
+p{margin:6px}
+canvas{display:block;width:min(100%,900px);height:auto;margin:12px auto;border:3px solid white;border-radius:10px}
+button{padding:12px 20px;margin:5px;border:0;border-radius:9px;background:#ffe66d;font-size:17px;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>🏁 SKY RACERS 🏎️</h1>
+<p>Arrow keys or WASD to drive • Avoid the edges!</p>
+<p id="info">Speed: 0 km/h | Distance: 0 m</p>
+<canvas id="game" width="900" height="600"></canvas>
+<div>
+<button id="left">⬅ LEFT</button>
+<button id="gas">▲ GAS</button>
+<button id="brake">▼ BRAKE</button>
+<button id="right">RIGHT ➡</button>
+<button id="reset">↻ RESTART</button>
+</div>
+<p>Sky Racers — First playable version</p>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const W=900,H=600;
+let carX=0,speed=0,distance=0,roadOffset=0;
+const keys={};
+let crashed=false;
+
+document.addEventListener("keydown",e=>{
+ keys[e.key.toLowerCase()]=true;
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+});
+document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+function hold(id,key){
+ const b=document.getElementById(id);
+ b.addEventListener("pointerdown",e=>{e.preventDefault();keys[key]=true});
+ ["pointerup","pointercancel","pointerleave"].forEach(ev=>
+  b.addEventListener(ev,()=>keys[key]=false));
+}
+hold("left","arrowleft");
+hold("right","arrowright");
+hold("gas","arrowup");
+hold("brake","arrowdown");
+
+document.getElementById("reset").onclick=()=>{
+ carX=0;speed=0;distance=0;roadOffset=0;crashed=false;
+};
+
+function polygon(points,color){
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
+ ctx.closePath();ctx.fill();
+}
+
+function drawCar(x,y){
+ ctx.save();ctx.translate(x,y);
+ ctx.fillStyle="#111";ctx.fillRect(-29,-8,12,28);ctx.fillRect(17,-8,12,28);
+ ctx.fillStyle="#f02d4f";ctx.fillRect(-23,-28,46,58);
+ ctx.fillStyle="#ff6174";ctx.fillRect(-18,-23,36,12);
+ ctx.fillStyle="#a9edff";ctx.fillRect(-16,-8,32,16);
+ ctx.fillStyle="#ffe66d";ctx.fillRect(-20,22,10,5);ctx.fillRect(10,22,10,5);
+ ctx.restore();
+}
+
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ const sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,"#62c7f5");sky.addColorStop(.55,"#c5f0ff");sky.addColorStop(.56,"#378d42");sky.addColorStop(1,"#174b2d");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+
+ // Distant hills
+ polygon([[0,340],[100,240],[210,320],[350,220],[490,320],[640,235],[790,315],[900,250],[900,420],[0,420]],"#43874b");
+
+ // Perspective road
+ const horizon=175;
+ const curve=Math.sin(roadOffset/900)*95;
+ polygon([[W/2-35+curve,horizon],[W/2+35+curve,horizon],[W+120,H],[ -120,H]],"#343a42");
+
+ // Road edges and dashed center line
+ for(let i=0;i<18;i++){
+  let t=((i/18+roadOffset/900)%1);
+  let y=horizon+t*t*(H-horizon);
+  let half=35+t*485;
+  let center=W/2+Math.sin(roadOffset/900+t*2)*95;
+  let stripeH=2+t*22;
+  if(i%2===0){
+   ctx.fillStyle="#fff";
+   ctx.fillRect(center-half-8,y,8,stripeH);
+   ctx.fillRect(center+half,y,8,stripeH);
+  }
+  if(i%2===0){
+   ctx.fillStyle="#fff0b0";
+   ctx.fillRect(center-3,y,6,stripeH);
+  }
+ }
+
+ // Roadside trees
+ for(let i=0;i<20;i++){
+  const t=((i/20+roadOffset/1400)%1);
+  const y=horizon+t*t*(H-horizon);
+  const center=W/2+Math.sin(roadOffset/900+t*2)*95;
+  const half=35+t*485;
+  const size=8+t*30;
+  for(const side of [-1,1]){
+   const x=center+side*(half+20+t*45);
+   ctx.fillStyle="#70482c";ctx.fillRect(x-size*.12,y-size*.3,size*.24,size*.8);
+   ctx.fillStyle=i%2?"#176b3a":"#258a48";
+   ctx.beginPath();ctx.arc(x,y-size*.55,size*.45,0,Math.PI*2);ctx.fill();
+  }
+ }
+
+ drawCar(W/2+carX*300,H-105);
+
+ ctx.fillStyle="rgba(0,0,0,.5)";
+ ctx.fillRect(18,18,230,68);
+ ctx.fillStyle="white";ctx.font="bold 23px Arial";
+ ctx.fillText("SPEED  "+Math.round(speed*5)+" km/h",30,47);
+ ctx.font="17px Arial";ctx.fillText("DISTANCE  "+Math.floor(distance)+" m",30,72);
+}
+
+function loop(){
+ if(keys["arrowup"]||keys["w"])speed+=.12;
+ else speed-=.035;
+ if(keys["arrowdown"]||keys["s"])speed-=.18;
+ speed=Math.max(0,Math.min(35,speed));
+
+ if(keys["arrowleft"]||keys["a"])carX-=.018*(.5+speed/15);
+ if(keys["arrowright"]||keys["d"])carX+=.018*(.5+speed/15);
+
+ carX=Math.max(-1.25,Math.min(1.25,carX));
+ if(Math.abs(carX)>1.05)speed*=.97;
+
+ distance+=speed/35*.12;
+ roadOffset+=speed*1.8;
+ document.getElementById("info").textContent=
+  "Speed: "+Math.round(speed*5)+" km/h | Distance: "+Math.floor(distance)+" m";
+ draw();
+ requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
+
