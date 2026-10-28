@@ -281,6 +281,7 @@ function loop(now){
    conn.send({type:"car",x:carX,distance:distance,speed:speed});
   }catch(e){}
  }
+ updateRaceDisplay();
  draw();
  requestAnimationFrame(loop);
 }
