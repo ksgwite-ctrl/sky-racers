@@ -298,7 +298,8 @@ function loop(now){
  if(Math.abs(carX)>1.05)speed*=.97;
 
  distance+=speed/35*.12;
- if (raceStarted && !raceFinished) {
+ if (raceStartAt && Date.now() >= raceStartAt && !raceFinished) {
+  raceStarted = true;
   raceProgress = distance;
   currentLap = Math.min(
     totalLaps,
