@@ -176,7 +176,24 @@ document.getElementById("copy").onclick=async()=>{
  }
 };
 
-function polygon(points,color){
+ document.getElementById("startRace").onclick=()=>{
+  if(!conn || !conn.open){
+    setStatus("Connect to a friend before starting the race.");
+    return;
+  }
+
+  raceStartAt=Date.now()+5000;
+  raceStarted=false;
+  raceFinished=false;
+
+  conn.send({
+    type:"raceStart",
+    startAt:raceStartAt
+  });
+
+  updateRaceDisplay();
+};
+ function polygon(points,color){
  ctx.fillStyle=color;ctx.beginPath();
  points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
  ctx.closePath();ctx.fill();
