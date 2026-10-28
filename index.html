@@ -186,6 +186,9 @@ document.getElementById("copy").onclick=async()=>{
   raceStartAt=Date.now()+5000;
   raceStarted=false;
   raceFinished=false;
+  currentLap = 0;
+raceProgress = 0;
+distance = 0;
 
   conn.send({
     type:"raceStart",
