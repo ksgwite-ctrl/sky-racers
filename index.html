@@ -364,5 +364,43 @@ function loop(now) {
 requestAnimationFrame(loop);
 
 </script>
+ 
+<audio id="backgroundMusic" loop preload="none">
+  <source src="./racing-music.mp3" type="audio/mpeg">
+</audio>
+
+<button id="musicToggle" type="button"
+  style="position:fixed;right:12px;bottom:12px;z-index:9999;
+  padding:10px 14px;border-radius:10px;cursor:pointer;">
+  🎵 Music: OFF
+</button>
+
+<script>
+(function () {
+  const music = document.getElementById("backgroundMusic");
+  const button = document.getElementById("musicToggle");
+
+  music.volume = 0.25;
+
+  button.addEventListener("click", async function () {
+    if (music.paused) {
+      try {
+        await music.play();
+        button.textContent = "🎵 Music: ON";
+      } catch (error) {
+        button.textContent = "Tap to start music";
+      }
+    } else {
+      music.pause();
+      button.textContent = "🎵 Music: OFF";
+    }
+  });
+
+  music.addEventListener("error", function () {
+    button.textContent = "Music file unavailable";
+  });
+})();
+</script>
+
 </body>
 </html>
