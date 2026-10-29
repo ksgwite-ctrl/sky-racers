@@ -247,16 +247,28 @@ function draw(){
   let stripeH=2+t*22;
   
   if(i%2===0){
-   // Red-and-white roadside barriers
-   ctx.fillStyle="#f4f4f4";
-   ctx.fillRect(center-half-13,y,13,stripeH);
-   ctx.fillRect(center+half,y,13,stripeH);
+  
+   // Improved red-and-white roadside barriers
+   const barrierW = 13 + t * 9;
+   const leftBarrierX = center - half - barrierW;
+   const rightBarrierX = center + half;
+   
+   // White barrier base
+   ctx.fillStyle = "#f4f4f4";
+   ctx.fillRect(leftBarrierX, y, barrierW, stripeH);
+   ctx.fillRect(rightBarrierX, y, barrierW, stripeH);
 
-   ctx.fillStyle="#d83232";
-   ctx.fillRect(center-half-13,y,13,stripeH*.55);
-   ctx.fillRect(center+half,y,13,stripeH*.55);
+   // Red alternating panels
+   if (i % 2 === 0) {
+     ctx.fillStyle = "#d83232";
+     ctx.fillRect(leftBarrierX, y, barrierW, stripeH * 0.65);
+     ctx.fillRect(rightBarrierX, y, barrierW, stripeH * 0.65);
+   }
 
-   // Yellow center road marking
+   // Yellow dashed center line
+   ctx.fillStyle = "#ffe36e";
+   ctx.fillRect(center - (1.5 + t * 2), y, 3 + t * 4, stripeH * 0.8);
+
    ctx.fillStyle="#fff0b0";
    ctx.fillRect(center-3,y,6,stripeH);
   }
