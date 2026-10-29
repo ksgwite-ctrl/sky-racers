@@ -402,5 +402,71 @@ requestAnimationFrame(loop);
 })();
 </script>
 
+<script>
+(function () {
+  let audioContext;
+  let oscillator;
+  let gain;
+  let engineStarted = false;
+
+  function startEngine() {
+    if (engineStarted) {
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return;
+    }
+
+    const AudioContextClass =
+      window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) return;
+
+    audioContext = new AudioContextClass();
+    oscillator = audioContext.createOscillator();
+    gain = audioContext.createGain();
+
+    oscillator.type = "sawtooth";
+    oscillator.frequency.value = 65;
+    gain.gain.value = 0;
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+
+    engineStarted = true;
+  }
+
+  function updateEngine() {
+    if (engineStarted && audioContext.state === "running") {
+      const speedElement = document.getElementById("info");
+      const match = speedElement &&
+        speedElement.textContent.match(/Speed:\s*(\d+)/);
+
+      const speed = match ? Number(match[1]) : 0;
+
+      oscillator.frequency.setTargetAtTime(
+        55 + speed * 2.5,
+        audioContext.currentTime,
+        0.08
+      );
+
+      gain.gain.setTargetAtTime(
+        Math.min(0.055, speed / 700),
+        audioContext.currentTime,
+        0.1
+      );
+    }
+
+    requestAnimationFrame(updateEngine);
+  }
+
+  document.addEventListener("keydown", startEngine, { once: true });
+  document.addEventListener("pointerdown", startEngine, { once: true });
+
+  requestAnimationFrame(updateEngine);
+})();
+</script>
+
 </body>
 </html>
