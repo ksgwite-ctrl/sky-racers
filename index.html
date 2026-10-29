@@ -289,11 +289,35 @@ let stripeH = 3 + t * 28;
   const size=8+t*30;
   for(const side of [-1,1]){
    const x=center+side*(half+20+t*45);
-   ctx.fillStyle="#70482c";
-   ctx.fillRect(x-size*.12,y-size*.3,size*.24,size*.8);
-   ctx.fillStyle=i%2?"#176b3a":"#258a48";
-   ctx.beginPath();ctx.arc(x,y-size*.55,size*.45,0,Math.PI*2);ctx.fill();
-  }
+  
+   // Improved tree trunk
+   ctx.fillStyle = "#624027";
+   ctx.fillRect(x - size * 0.10, y - size * 0.30,
+                size * 0.20, size * 0.80);
+
+   // Trunk highlight
+   ctx.fillStyle = "#96643c";
+   ctx.fillRect(x - size * 0.04, y - size * 0.27,
+                size * 0.045, size * 0.70);
+
+   // Layered green tree canopy
+   ctx.fillStyle = "#104d2b";
+   ctx.beginPath();
+   ctx.arc(x, y - size * 0.58, size * 0.48, 0, Math.PI * 2);
+   ctx.fill();
+
+   ctx.fillStyle = i % 2 ? "#19723a" : "#238b46";
+   ctx.beginPath();
+   ctx.arc(x - size * 0.16, y - size * 0.66,
+           size * 0.34, 0, Math.PI * 2);
+   ctx.fill();
+
+   ctx.fillStyle = i % 2 ? "#329d50" : "#3aaa57";
+   ctx.beginPath();
+   ctx.arc(x + size * 0.14, y - size * 0.73,
+           size * 0.27, 0, Math.PI * 2);
+   ctx.fill();
+
  }
 
  // Draw the other player according to the distance between the cars.
