@@ -245,13 +245,22 @@ function draw(){
   let half=35+t*485;
   let center=W/2+Math.sin(roadOffset/900+t*2)*95;
   let stripeH=2+t*22;
+  
   if(i%2===0){
-   ctx.fillStyle="#fff";
-   ctx.fillRect(center-half-8,y,8,stripeH);
-   ctx.fillRect(center+half,y,8,stripeH);
+   // Red-and-white roadside barriers
+   ctx.fillStyle="#f4f4f4";
+   ctx.fillRect(center-half-13,y,13,stripeH);
+   ctx.fillRect(center+half,y,13,stripeH);
+
+   ctx.fillStyle="#d83232";
+   ctx.fillRect(center-half-13,y,13,stripeH*.55);
+   ctx.fillRect(center+half,y,13,stripeH*.55);
+
+   // Yellow center road marking
    ctx.fillStyle="#fff0b0";
    ctx.fillRect(center-3,y,6,stripeH);
   }
+
  }
 
  for(let i=0;i<20;i++){
