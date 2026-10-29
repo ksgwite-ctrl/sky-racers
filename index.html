@@ -296,55 +296,73 @@ function draw(){
  ctx.font="17px Arial";ctx.fillText("DISTANCE "+Math.floor(distance)+" m",30,72);
 }
 
-if (raceStartAt && Date.now() < raceStartAt) {
-  updateRaceDisplay();
-}
- if(keys["arrowup"]||keys["w"])speed+=.12;
- else speed-=.035;
- if(keys["arrowdown"]||keys["s"])speed-=.18;
- speed=Math.max(0,Math.min(35,speed));
 
- if(keys["arrowleft"]||keys["a"])carX-=.018*(.5+speed/15);
- if(keys["arrowright"]||keys["d"])carX+=.018*(.5+speed/15);
- carX=Math.max(-1.25,Math.min(1.25,carX));
- if(Math.abs(carX)>1.05)speed*=.97;
-
- distance+=speed/35*.12;
- if (raceStartAt && Date.now() >= raceStartAt && !raceFinished) {
-  raceStarted = true;
-  raceProgress = distance;
-  currentLap = Math.min(
-    totalLaps,
-    Math.floor(raceProgress / lapDistance) + 1
-  );
-
-  document.getElementById("lapInfo").textContent =
-    "Lap: " + currentLap + " / " + totalLaps;
-
-  if (raceProgress >= totalLaps * lapDistance) {
-    raceFinished = true;
+function loop(now) {
+  if (raceStartAt && Date.now() < raceStartAt) {
     speed = 0;
-    document.getElementById("lapInfo").textContent =
-      "Lap: " + totalLaps + " / " + totalLaps;
     updateRaceDisplay();
+  } else {
+    if (keys["arrowup"] || keys["w"]) speed += 0.12;
+    else speed -= 0.035;
+
+    if (keys["arrowdown"] || keys["s"]) speed -= 0.18;
+
+    speed = Math.max(0, Math.min(35, speed));
+
+    if (keys["arrowleft"] || keys["a"]) carX -= 0.018 * (0.5 + speed / 15);
+    if (keys["arrowright"] || keys["d"]) carX += 0.018 * (0.5 + speed / 15);
+
+    carX = Math.max(-1.25, Math.min(1.25, carX));
+    if (Math.abs(carX) > 1.05) speed *= 0.97;
+
+    distance += speed / 35 * 0.12;
+    roadOffset += speed * 1.8;
+
+    if (raceStartAt && Date.now() >= raceStartAt && !raceFinished) {
+      raceStarted = true;
+      raceProgress = distance;
+
+      currentLap = Math.min(
+        totalLaps,
+        Math.floor(raceProgress / lapDistance) + 1
+      );
+
+      document.getElementById("lapInfo").textContent =
+        "Lap: " + currentLap + " / " + totalLaps;
+
+      if (raceProgress >= totalLaps * lapDistance) {
+        raceFinished = true;
+        speed = 0;
+        document.getElementById("lapInfo").textContent =
+          "Lap: " + totalLaps + " / " + totalLaps;
+        updateRaceDisplay();
+      }
+    }
   }
-}
- roadOffset+=speed*1.8;
 
- document.getElementById("info").textContent=
- "Speed: "+Math.round(speed*5)+" km/h | Distance: "+Math.floor(distance)+" m";
+  document.getElementById("info").textContent =
+    "Speed: " + Math.round(speed * 5) +
+    " km/h | Distance: " + Math.floor(distance) + " m";
 
- if(conn && conn.open && now-lastSend>70){
-  lastSend=now;
-  try{
-   conn.send({type:"car",x:carX,distance:distance,speed:speed});
-  }catch(e){}
- }
- updateRaceDisplay();
- draw();
- requestAnimationFrame(loop);
+  if (conn && conn.open && now - lastSend > 70) {
+    lastSend = now;
+    try {
+      conn.send({
+        type: "car",
+        x: carX,
+        distance: distance,
+        speed: speed
+      });
+    } catch (e) {}
+  }
+
+  updateRaceDisplay();
+  draw();
+  requestAnimationFrame(loop);
 }
+
 requestAnimationFrame(loop);
+
 </script>
 </body>
 </html>
