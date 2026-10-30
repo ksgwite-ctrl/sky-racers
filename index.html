@@ -305,33 +305,95 @@ for (let i = 0; i < 20; i++) {
 
   for (const side of [-1, 1]) {
     const x = center + side * (half + 20 + t * 45);
+    const type = i % 3;
 
-    // Tree trunk
-    ctx.fillStyle = "#624027";
-    ctx.fillRect(x - size * 0.10, y - size * 0.30,
-                 size * 0.20, size * 0.80);
+    // Natural tree trunk
+    ctx.fillStyle = "#68452d";
+    ctx.fillRect(x - size * 0.09, y - size * 0.30,
+                 size * 0.18, size * 0.80);
 
-    // Trunk highlight
-    ctx.fillStyle = "#96643c";
-    ctx.fillRect(x - size * 0.04, y - size * 0.27,
-                 size * 0.045, size * 0.70);
+    // Branches
+    ctx.strokeStyle = "#68452d";
+    ctx.lineWidth = Math.max(1, size * 0.07);
+    ctx.beginPath();
+    ctx.moveTo(x, y - size * 0.35);
+    ctx.lineTo(x - size * 0.27, y - size * 0.85);
+    ctx.moveTo(x, y - size * 0.45);
+    ctx.lineTo(x + size * 0.27, y - size * 0.82);
+    ctx.stroke();
 
-    // Pointed evergreen foliage
-    for (let layer = 0; layer < 4; layer++) {
-      const width = size * (0.48 - layer * 0.075);
-      const top = y - size * (1.25 - layer * 0.25);
-      const base = y - size * (0.35 + layer * 0.20);
+    if (type === 0) {
+      // Broadleaf tree
+      const leaves = [
+        [-0.30, -0.75, 0.38],
+        [ 0.00, -0.95, 0.42],
+        [ 0.30, -0.78, 0.36],
+        [-0.17, -1.10, 0.32],
+        [ 0.19, -1.12, 0.34],
+        [ 0.00, -0.68, 0.35]
+      ];
 
-      ctx.fillStyle = [
-        "#104d2b", "#176b35", "#238b46", "#329d50"
-      ][(i + layer) % 4];
+      for (let j = 0; j < leaves.length; j++) {
+        ctx.fillStyle = [
+          "#15552d", "#21763b", "#318c45",
+          "#459b50", "#286b37", "#398746"
+        ][j];
 
-      ctx.beginPath();
-      ctx.moveTo(x, top);
-      ctx.lineTo(x - width, base);
-      ctx.lineTo(x + width, base);
-      ctx.closePath();
-      ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(
+          x + leaves[j][0] * size,
+          y + leaves[j][1] * size,
+          leaves[j][2] * size,
+          leaves[j][2] * size * 0.78,
+          (j % 2 ? 0.25 : -0.20),
+          0, Math.PI * 2
+        );
+        ctx.fill();
+      }
+    } else if (type === 1) {
+      // Evergreen tree
+      for (let layer = 0; layer < 4; layer++) {
+        const top = y - size * (1.40 - layer * 0.22);
+        const base = y - size * (0.48 - layer * 0.03);
+        const width = size * (0.43 - layer * 0.075);
+
+        ctx.fillStyle = [
+          "#104b2b", "#176438", "#247a3d", "#328c48"
+        ][layer];
+
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x - width, base);
+        ctx.lineTo(x + width, base);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else {
+      // Rounded woodland tree
+      const clusters = [
+        [-0.27, -0.83, 0.36],
+        [ 0.20, -0.86, 0.38],
+        [ 0.00, -1.10, 0.39],
+        [-0.05, -0.72, 0.35],
+        [ 0.30, -1.08, 0.27]
+      ];
+
+      for (let j = 0; j < clusters.length; j++) {
+        ctx.fillStyle = [
+          "#175b30", "#26783c", "#388b43",
+          "#479d50", "#216a35"
+        ][j];
+
+        ctx.beginPath();
+        ctx.ellipse(
+          x + clusters[j][0] * size,
+          y + clusters[j][1] * size,
+          clusters[j][2] * size,
+          clusters[j][2] * size * 0.82,
+          j * 0.18, 0, Math.PI * 2
+        );
+        ctx.fill();
+      }
     }
   }
 }
