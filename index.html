@@ -295,45 +295,46 @@ let stripeH = 3 + t * 28;
 
  }
 
- for(let i=0;i<20;i++){
-  const t=((i/20+roadOffset/1400)%1);
-  const y=horizon+t*t*(H-horizon);
-  const center=W/2+Math.sin(roadOffset/900+t*2)*95;
-  const half=35+t*485;
-  const size=8+t*30;
-  for(const side of [-1,1]){
-   const x=center+side*(half+20+t*45);
-  
-   // Improved tree trunk
-   ctx.fillStyle = "#624027";
-   ctx.fillRect(x - size * 0.10, y - size * 0.30,
-                size * 0.20, size * 0.80);
+ 
+for (let i = 0; i < 20; i++) {
+  const t = ((i / 20 + roadOffset / 1400) % 1);
+  const y = horizon + t * t * (H - horizon);
+  const center = W / 2 + Math.sin(roadOffset / 900 + t * 2) * 95;
+  const half = 35 + t * 485;
+  const size = 8 + t * 30;
 
-   // Trunk highlight
-   ctx.fillStyle = "#96643c";
-   ctx.fillRect(x - size * 0.04, y - size * 0.27,
-                size * 0.045, size * 0.70);
+  for (const side of [-1, 1]) {
+    const x = center + side * (half + 20 + t * 45);
 
-   // Layered green tree canopy
-   ctx.fillStyle = "#104d2b";
-   ctx.beginPath();
-   ctx.arc(x, y - size * 0.58, size * 0.48, 0, Math.PI * 2);
-   ctx.fill();
+    // Tree trunk
+    ctx.fillStyle = "#624027";
+    ctx.fillRect(x - size * 0.10, y - size * 0.30,
+                 size * 0.20, size * 0.80);
 
-   ctx.fillStyle = i % 2 ? "#19723a" : "#238b46";
-   ctx.beginPath();
-   ctx.arc(x - size * 0.16, y - size * 0.66,
-           size * 0.34, 0, Math.PI * 2);
-   ctx.fill();
+    // Trunk highlight
+    ctx.fillStyle = "#96643c";
+    ctx.fillRect(x - size * 0.04, y - size * 0.27,
+                 size * 0.045, size * 0.70);
 
-   ctx.fillStyle = i % 2 ? "#329d50" : "#3aaa57";
-   ctx.beginPath();
-   ctx.arc(x + size * 0.14, y - size * 0.73,
-           size * 0.27, 0, Math.PI * 2);
-   ctx.fill();
+    // Pointed evergreen foliage
+    for (let layer = 0; layer < 4; layer++) {
+      const width = size * (0.48 - layer * 0.075);
+      const top = y - size * (1.25 - layer * 0.25);
+      const base = y - size * (0.35 + layer * 0.20);
 
-   } // End of side loop
-} // End of tree loop
+      ctx.fillStyle = [
+        "#104d2b", "#176b35", "#238b46", "#329d50"
+      ][(i + layer) % 4];
+
+      ctx.beginPath();
+      ctx.moveTo(x, top);
+      ctx.lineTo(x - width, base);
+      ctx.lineTo(x + width, base);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+}
 
  // Draw the other player according to the distance between the cars.
  if(remote){
