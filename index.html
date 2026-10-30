@@ -296,10 +296,11 @@ let stripeH = 3 + t * 28;
  
 for (let i = 0; i < 36; i++) {
   const t = ((i / 36 + roadOffset / 900) % 1);
-  const y = horizon + t * t * (H - horizon);
-  const center = W / 2;
-const half = 35 + t * 535;
-  const size = 8 + t * 30;
+ const y = horizon + t * t * (H - horizon);
+const center = W / 2;
+const depth = (y - horizon) / (H - horizon);
+const half = 35 + depth * 535;
+const size = 8 + t * 30;
 
   for (const side of [-1, 1]) {
     const x = center + side * (half + 20 + t * 45);
@@ -401,7 +402,8 @@ for (let i = 0; i < 12; i++) {
   const y = horizon + t * t * (H - horizon);
 
   const center = W / 2;
-const half = 35 + t * 535;
+const depth = (y - horizon) / (H - horizon);
+const half = 35 + depth * 535;
   const size = 5 + t * 24;
 
   for (const side of [-1, 1]) {
@@ -451,7 +453,8 @@ for (let i = 0; i < 8; i++) {
   const y = horizon + t * t * (H - horizon);
 
   const center = W / 2;
-const half = 35 + t * 535;
+const depth = (y - horizon) / (H - horizon);
+const half = 35 + depth * 535;
   const size = 8 + t * 22;
 
   for (const side of [-1, 1]) {
