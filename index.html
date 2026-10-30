@@ -225,40 +225,10 @@ distance = 0;
  points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
  ctx.closePath();ctx.fill();
 }
+
 function drawCar(x,y,color,label){
  ctx.save();
  ctx.translate(x,y);
-
- // BLUE NITRO FLAMES
- if(nitroActive && label !== "FRIEND"){
-   const flicker = Math.sin(Date.now() / 45) * 5;
-
-   ctx.fillStyle = "#00bfff";
-   ctx.beginPath();
-   ctx.moveTo(-15,28);
-   ctx.lineTo(-9,48 + flicker);
-   ctx.lineTo(-3,28);
-   ctx.fill();
-
-   ctx.beginPath();
-   ctx.moveTo(3,28);
-   ctx.lineTo(9,48 - flicker);
-   ctx.lineTo(15,28);
-   ctx.fill();
-
-   ctx.fillStyle = "#b8f5ff";
-   ctx.beginPath();
-   ctx.moveTo(-9,28);
-   ctx.lineTo(-7,39 + flicker);
-   ctx.lineTo(-4,28);
-   ctx.fill();
-
-   ctx.beginPath();
-   ctx.moveTo(4,28);
-   ctx.lineTo(7,39 - flicker);
-   ctx.lineTo(9,28);
-   ctx.fill();
- }
 
  // CAR BODY
  ctx.fillStyle="#111";
@@ -278,6 +248,43 @@ function drawCar(x,y,color,label){
  ctx.fillRect(-20,22,10,5);
  ctx.fillRect(10,22,10,5);
 
+ // BLUE NITRO FLAMES — DRAWN AFTER THE CAR
+ if(nitroActive && label !== "FRIEND"){
+   const flicker = Math.sin(Date.now()/45)*7;
+
+   ctx.shadowColor="#00bfff";
+   ctx.shadowBlur=18;
+   ctx.fillStyle="#00bfff";
+
+   ctx.beginPath();
+   ctx.moveTo(-15,27);
+   ctx.lineTo(-9,58+flicker);
+   ctx.lineTo(-3,27);
+   ctx.fill();
+
+   ctx.beginPath();
+   ctx.moveTo(3,27);
+   ctx.lineTo(9,58-flicker);
+   ctx.lineTo(15,27);
+   ctx.fill();
+
+   ctx.shadowBlur=5;
+   ctx.fillStyle="#b8f5ff";
+
+   ctx.beginPath();
+   ctx.moveTo(-9,28);
+   ctx.lineTo(-7,48+flicker);
+   ctx.lineTo(-4,28);
+   ctx.fill();
+
+   ctx.beginPath();
+   ctx.moveTo(4,28);
+   ctx.lineTo(7,48-flicker);
+   ctx.lineTo(9,28);
+   ctx.fill();
+ }
+
+ ctx.shadowBlur=0;
  ctx.fillStyle="white";
  ctx.font="bold 13px Arial";
  ctx.textAlign="center";
@@ -285,6 +292,7 @@ function drawCar(x,y,color,label){
 
  ctx.restore();
 }
+
 
 function draw(){
  ctx.clearRect(0,0,W,H);
