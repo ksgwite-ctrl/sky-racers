@@ -296,8 +296,8 @@ let stripeH = 3 + t * 28;
  }
 
  
-for (let i = 0; i < 20; i++) {
-  const t = ((i / 20 + roadOffset / 1400) % 1);
+for (let i = 0; i < 36; i++) {
+  const t = ((i / 36 + roadOffset / 1400) % 1);
   const y = horizon + t * t * (H - horizon);
   const center = W / 2 + Math.sin(roadOffset / 900 + t * 2) * 95;
   const half = 35 + t * 485;
