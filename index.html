@@ -258,7 +258,8 @@ function draw(){
   let y = horizon + t * t * (H - horizon);
 
 // Wider road with stronger perspective
-let half = 35 + t * 535;
+let depth = (y - horizon) / (H - horizon);
+let half = 35 + depth * 535;
 
 // More noticeable bends
 let center = W / 2;
@@ -299,7 +300,7 @@ for (let i = 0; i < 36; i++) {
  const y = horizon + t * t * (H - horizon);
 const center = W / 2;
 const depth = (y - horizon) / (H - horizon);
-const half = 45 + t * 535;
+const half = 35 + depth * 535;
 const size = 8 + t * 30;
 
   for (const side of [-1, 1]) {
@@ -401,10 +402,11 @@ for (let i = 0; i < 12; i++) {
   const t = ((i / 12 + roadOffset / 900) % 1);
   const y = horizon + t * t * (H - horizon);
 
-  const center = W / 2;
+  
+const center = W / 2;
 const depth = (y - horizon) / (H - horizon);
-const half = 45 + t * 535;
-  const size = 5 + t * 24;
+const half = 35 + depth * 535;
+const size = 5 + t * 24;
 
   for (const side of [-1, 1]) {
     const x = center + side * (half + 25 + t * 45);
@@ -451,10 +453,9 @@ const half = 45 + t * 535;
 for (let i = 0; i < 8; i++) {
   const t = ((i / 8 + roadOffset / 900) % 1);
   const y = horizon + t * t * (H - horizon);
-
   const center = W / 2;
-const depth = (y - horizon) / (H - horizon);
-const half = 45 + t * 535;
+  const depth = (y - horizon) / (H - horizon);
+  const half = 35 + depth * 535;
   const size = 8 + t * 22;
 
   for (const side of [-1, 1]) {
