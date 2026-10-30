@@ -51,6 +51,7 @@ const keys={};
 let carX=0,speed=0,distance=0,roadOffset=0;
 let peer=null,conn=null,remote=null;
 let lastSend=0;
+let remoteDisplayX = 0;
 
 let raceStartAt = 0;
 let raceStarted = false;
@@ -490,7 +491,8 @@ for (let i = 0; i < 8; i++) {
   const t=Math.sqrt(Math.max(0.01,(y-horizon)/(H-horizon)));
   const center=W/2+Math.sin(roadOffset/900+t*2)*95;
   const half=35+t*485;
-  const x=center+remote.x*half*.65;
+  remoteDisplayX += (remote.x - remoteDisplayX) * 0.12;
+const x=center+remoteDisplayX*half*.65;
   drawCar(x,y,"#38a8ff","FRIEND");
  }
 
