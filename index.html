@@ -551,7 +551,22 @@ function loop(now) {
       }
     }
   }
+// Update multiplayer leaderboard
+const playerPosition = document.getElementById("playerPosition");
+const friendPosition = document.getElementById("friendPosition");
 
+if (remote && typeof remote.distance === "number") {
+  if (distance >= remote.distance) {
+    playerPosition.textContent = "1. YOU — Leading";
+    friendPosition.textContent = "2. FRIEND — " + Math.floor(remote.distance) + " m";
+  } else {
+    playerPosition.textContent = "2. YOU — " + Math.floor(distance) + " m";
+    friendPosition.textContent = "1. FRIEND — Leading";
+  }
+} else {
+  playerPosition.textContent = "1. YOU — " + Math.floor(distance) + " m";
+  friendPosition.textContent = "2. FRIEND — Waiting";
+}
   document.getElementById("info").textContent =
     "Speed: " + Math.round(speed * 5) +
     " km/h | Distance: " + Math.floor(distance) + " m";
