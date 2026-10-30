@@ -523,7 +523,17 @@ function loop(now) {
 
     if (keys["arrowdown"] || keys["s"]) speed -= 0.18;
 
-    speed = Math.max(0, Math.min(35, speed));
+// NITRO BOOST
+if (keys["nitro"] && nitroEnergy > 0) {
+  nitroActive = true;
+  speed += 0.35;
+  nitroEnergy = Math.max(0, nitroEnergy - 0.6);
+} else {
+  nitroActive = false;
+  nitroEnergy = Math.min(100, nitroEnergy + 0.15);
+}
+
+speed = Math.max(0, Math.min(nitroActive ? 45 : 35, speed));
 
     if (keys["arrowleft"] || keys["a"]) carX -= 0.018 * (0.5 + speed / 15);
     if (keys["arrowright"] || keys["d"]) carX += 0.018 * (0.5 + speed / 15);
