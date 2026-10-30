@@ -225,17 +225,64 @@ distance = 0;
  points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
  ctx.closePath();ctx.fill();
 }
-
 function drawCar(x,y,color,label){
- ctx.save();ctx.translate(x,y);
+ ctx.save();
+ ctx.translate(x,y);
+
+ // BLUE NITRO FLAMES
+ if(nitroActive && label !== "FRIEND"){
+   const flicker = Math.sin(Date.now() / 45) * 5;
+
+   ctx.fillStyle = "#00bfff";
+   ctx.beginPath();
+   ctx.moveTo(-15,28);
+   ctx.lineTo(-9,48 + flicker);
+   ctx.lineTo(-3,28);
+   ctx.fill();
+
+   ctx.beginPath();
+   ctx.moveTo(3,28);
+   ctx.lineTo(9,48 - flicker);
+   ctx.lineTo(15,28);
+   ctx.fill();
+
+   ctx.fillStyle = "#b8f5ff";
+   ctx.beginPath();
+   ctx.moveTo(-9,28);
+   ctx.lineTo(-7,39 + flicker);
+   ctx.lineTo(-4,28);
+   ctx.fill();
+
+   ctx.beginPath();
+   ctx.moveTo(4,28);
+   ctx.lineTo(7,39 - flicker);
+   ctx.lineTo(9,28);
+   ctx.fill();
+ }
+
+ // CAR BODY
  ctx.fillStyle="#111";
- ctx.fillRect(-29,-8,12,28);ctx.fillRect(17,-8,12,28);
- ctx.fillStyle=color;ctx.fillRect(-23,-28,46,58);
- ctx.fillStyle="#ffffff66";ctx.fillRect(-18,-23,36,12);
- ctx.fillStyle="#a9edff";ctx.fillRect(-16,-8,32,16);
- ctx.fillStyle="#ffe66d";ctx.fillRect(-20,22,10,5);ctx.fillRect(10,22,10,5);
- ctx.fillStyle="white";ctx.font="bold 13px Arial";ctx.textAlign="center";
+ ctx.fillRect(-29,-8,12,28);
+ ctx.fillRect(17,-8,12,28);
+
+ ctx.fillStyle=color;
+ ctx.fillRect(-23,-28,46,58);
+
+ ctx.fillStyle="#ffffff66";
+ ctx.fillRect(-18,-23,36,12);
+
+ ctx.fillStyle="#a9edff";
+ ctx.fillRect(-16,-8,32,16);
+
+ ctx.fillStyle="#ffe66d";
+ ctx.fillRect(-20,22,10,5);
+ ctx.fillRect(10,22,10,5);
+
+ ctx.fillStyle="white";
+ ctx.font="bold 13px Arial";
+ ctx.textAlign="center";
  ctx.fillText(label,0,-35);
+
  ctx.restore();
 }
 
