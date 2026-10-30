@@ -489,8 +489,8 @@ for (let i = 0; i < 8; i++) {
   const delta=remote.distance-distance;
   const y=Math.max(205,Math.min(H-155,H-105-delta*1.5));
   const t=Math.sqrt(Math.max(0.01,(y-horizon)/(H-horizon)));
-  const center=W/2+Math.sin(roadOffset/900+t*2)*95;
-  const half=35+t*485;
+  const center = W / 2;
+  const half = 35 + t * t * 535;
   remoteDisplayX += (remote.x - remoteDisplayX) * 0.12;
 const x=center+remoteDisplayX*half*.65;
   drawCar(x,y,"#38a8ff","FRIEND");
