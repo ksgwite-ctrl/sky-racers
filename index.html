@@ -397,6 +397,56 @@ for (let i = 0; i < 36; i++) {
     }
   }
 }
+ // Wooden roadside fences
+for (let i = 0; i < 12; i++) {
+  const t = ((i / 12 + roadOffset / 1800) % 1);
+  const y = horizon + t * t * (H - horizon);
+
+  const center = W / 2 + Math.sin(roadOffset / 900 + t * 2) * 95;
+  const half = 35 + t * 485;
+  const size = 5 + t * 24;
+
+  for (const side of [-1, 1]) {
+    const x = center + side * (half + 25 + t * 45);
+
+    // Two wooden horizontal rails
+    ctx.fillStyle = "#80532e";
+
+    ctx.fillRect(
+      x - size * 1.1,
+      y - size * 1.15,
+      size * 2.2,
+      size * 0.16
+    );
+
+    ctx.fillRect(
+      x - size * 1.1,
+      y - size * 0.65,
+      size * 2.2,
+      size * 0.16
+    );
+
+    // Vertical fence post
+    ctx.fillStyle = "#684126";
+
+    ctx.fillRect(
+      x - size * 0.10,
+      y - size * 1.35,
+      size * 0.20,
+      size * 1.05
+    );
+
+    // Post highlight
+    ctx.fillStyle = "#b17b48";
+
+    ctx.fillRect(
+      x - size * 0.035,
+      y - size * 1.30,
+      size * 0.045,
+      size * 0.90
+    );
+  }
+}
 // Roadside racing signboards
 for (let i = 0; i < 8; i++) {
   const t = ((i / 8 + roadOffset / 1800) % 1);
