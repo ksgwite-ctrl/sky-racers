@@ -236,6 +236,20 @@ function draw(){
  polygon([[0,340],[100,240],[210,320],[350,220],
  [490,320],[640,235],[790,315],[900,250],[900,420],[0,420]],"#43874b");
 
+ // Natural grass across the roadside
+ for (let g = 0; g < 140; g++) {
+   const gx = (g * 137.5) % W;
+   const gy = 350 + ((g * 83) % Math.max(1, H - 350));
+   const gh = 3 + (g % 5) * 1.5;
+
+   ctx.strokeStyle = ["#236b35", "#318b3e", "#459c49"][g % 3];
+   ctx.lineWidth = 1.5;
+   ctx.beginPath();
+   ctx.moveTo(gx, gy);
+   ctx.lineTo(gx - 2, gy - gh);
+   ctx.stroke();
+ }
+
  const horizon=175;
  polygon([[W/2-35,horizon],[W/2+35,horizon],[W+120,H],[-120,H]],"#343a42");
 
