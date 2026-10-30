@@ -397,7 +397,40 @@ for (let i = 0; i < 36; i++) {
     }
   }
 }
+// Roadside racing signboards
+for (let i = 0; i < 8; i++) {
+  const t = ((i / 8 + roadOffset / 1800) % 1);
+  const y = horizon + t * t * (H - horizon);
 
+  const center = W / 2 + Math.sin(roadOffset / 900 + t * 2) * 95;
+  const half = 35 + t * 485;
+  const size = 8 + t * 22;
+
+  for (const side of [-1, 1]) {
+    const x = center + side * (half + 35 + t * 55);
+
+    // Signpost
+    ctx.fillStyle = "#59402b";
+    ctx.fillRect(x - size * 0.06, y - size * 0.8,
+                 size * 0.12, size * 1.1);
+
+    // Signboard
+    ctx.fillStyle = "#f4e6bd";
+    ctx.fillRect(x - size * 0.65, y - size * 1.35,
+                 size * 1.3, size * 0.65);
+
+    ctx.strokeStyle = "#493c2b";
+    ctx.lineWidth = Math.max(1, size * 0.08);
+    ctx.strokeRect(x - size * 0.65, y - size * 1.35,
+                   size * 1.3, size * 0.65);
+
+    // Sign text
+    ctx.fillStyle = "#18552d";
+    ctx.font = `bold ${Math.max(5, size * 0.25)}px Arial`;
+    ctx.textAlign = "center";
+    ctx.fillText("RACE", x, y - size * 0.92);
+  }
+}
  // Draw the other player according to the distance between the cars.
  if(remote){
   const delta=remote.distance-distance;
