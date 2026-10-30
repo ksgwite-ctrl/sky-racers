@@ -119,9 +119,13 @@ function setupConnection(c){
  conn.on("data",data=>{
   if(data && data.type==="car")remote=data;
  if(data && data.type==="raceStart"){
-    raceStartAt=data.startAt;
-    raceStarted=false;
-    raceFinished=false;
+  raceStartAt=data.startAt;
+  raceStarted=false;
+  raceFinished=false;
+  currentLap=0;
+  raceProgress=0;
+  distance=0;
+}
   }});
  conn.on("close",()=>{
   conn=null;remote=null;
