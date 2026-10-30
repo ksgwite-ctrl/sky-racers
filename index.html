@@ -539,7 +539,14 @@ if (keys["nitro"] && nitroEnergy > 0) {
 }
 
 speed = Math.max(0, Math.min(nitroActive ? 45 : 35, speed));
+// UPDATE NITRO METER
+const nitroFill = document.getElementById("nitroFill");
+const nitroText = document.getElementById("nitroText");
 
+if (nitroFill && nitroText) {
+  nitroFill.style.width = nitroEnergy + "%";
+  nitroText.textContent = "Nitro: " + Math.floor(nitroEnergy) + "%";
+}
     if (keys["arrowleft"] || keys["a"]) carX -= 0.018 * (0.5 + speed / 15);
     if (keys["arrowright"] || keys["d"]) carX += 0.018 * (0.5 + speed / 15);
 
